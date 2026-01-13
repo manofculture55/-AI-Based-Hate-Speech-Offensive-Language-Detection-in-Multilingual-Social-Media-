@@ -13,6 +13,7 @@ regex>=2023.0.0
 nicegui>=1.4.0
 plotly>=5.17.0
 matplotlib>=3.8.0
+seaborn
 
 # Utilities
 tqdm
