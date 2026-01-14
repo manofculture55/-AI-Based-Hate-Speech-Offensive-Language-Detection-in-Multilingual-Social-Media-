@@ -18,3 +18,7 @@ seaborn
 # Utilities
 tqdm
 openpyxl
+
+transformers>=4.30.0
+
+tf-keras

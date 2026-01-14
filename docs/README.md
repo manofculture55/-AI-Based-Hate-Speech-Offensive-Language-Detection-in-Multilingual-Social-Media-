@@ -37,3 +37,43 @@ python -m src.training.train
 
 # 3. Run App (Day 5 Task)
 # python app.py
+
+
+# KRIXION: AI-Based Hate Speech Detection (Offline)
+
+**Internship Project | KRIXION Technologies Pvt. Ltd.**
+**Developer:** [Your Name]
+**Mode:** 100% Offline (No APIs) | **Stack:** Python, NiceGUI, TensorFlow, SQLite
+
+## 📌 Project Overview
+This application is a multilingual AI system designed to detect **Hate Speech** and **Offensive Language** in social media text. It specifically targets **Hindi-English Code-Mixed (Hinglish)** content, which is common in India but hard for traditional models to catch.
+
+The system uses a **BiLSTM (Deep Learning)** architecture to analyze context and saves all predictions to a local SQLite database for auditing.
+
+## 🚀 Key Features
+*   **Multilingual Support:** Handles Hindi (`hi`), English (`en`), and Hinglish (`hi-en`).
+*   **Offline Execution:** Runs entirely on CPU without internet.
+*   **Real-Time Dashboard:** NiceGUI interface with History and Analytics tabs.
+*   **Admin Panel:** Hidden route (`/admin`) for retraining and data management.
+*   **Latency:** < 2 seconds per prediction.
+
+## 🛠️ Installation & Setup
+1.  **Clone/Unzip** the project folder.
+2.  **Run the Installer** (Windows):
+    ```bash
+    install.bat
+    ```
+    *This creates a virtual environment, installs dependencies, and trains the models.*
+
+3.  **Manual Setup** (Linux/Mac/Alternative):
+    ```bash
+    python -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+    python -m src.training.train
+    ```
+
+## 💻 How to Run
+Once installed, launch the application:
+```bash
+python app.py

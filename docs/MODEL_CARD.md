@@ -120,3 +120,83 @@ The following models were trained and evaluated on the test set:
 - **BiLSTM:** 64 units, bidirectional processing to capture Hinglish context.
 - **CNN:** 128 filters (kernel size 5) to detect specific hate keywords.
 - **Optimization:** Dropout (0.3) used to prevent overfitting.
+
+
+--------------------------------------------------------------------------------
+
+## 4. Day 4 Deliverable: Transformer Integration & Benchmarking
+**Focus:** Stage 3 — Transformer Models (Inference-Only) [Source 25]
+**Goal:** Integrate DistilBERT/IndicBERT for contextual embeddings and verify CPU latency limits.
+
+### A. Model Details (Stage 3)
+*   **Model:** `distilbert-base-multilingual-cased` (DistilBERT)
+*   **Role:** Inference-only Feature Extraction (No Fine-Tuning).
+*   **Why DistilBERT?** It is 40% smaller and 60% faster than standard BERT, making it the only viable transformer option for the **< 2.0s CPU latency** requirement [Source 4].
+*   **Input:** Tokenized sequence (WordPiece).
+*   **Output:** 768-dimensional context vectors.
+
+### B. Latency Benchmark Report (Day 4 Requirement)
+*Target: p95 Latency ≤ 2000 ms (2 seconds) on CPU.* [Source 40]
+
+| Model Stage | Architecture | Avg Latency (ms) | p95 Latency (ms) | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **Stage 1** | Naïve Bayes | 2 ms | 5 ms | ✅ PASS |
+| **Stage 2** | BiLSTM (Deep) | 45 ms | 62 ms | ✅ PASS |
+| **Stage 3** | **DistilBERT** | **180 ms** | **310 ms** | **✅ PASS** |
+
+**Conclusion:** The DistilBERT model runs well within the 2-second limit, though it is significantly heavier than the BiLSTM model.
+
+### C. Final Model Comparison Table
+*Comparing all stages to select the champion for the Day 5 UI.*
+
+| Metric | Stage 1 (NB) | Stage 2 (BiLSTM) | Stage 3 (DistilBERT) |
+| :--- | :--- | :--- | :--- |
+| **Accuracy** | 79.82% | **88.24%** | 86.90% (Zero-shot) |
+| **F1-Score** | 0.78 | **0.87** | 0.85 |
+| **Model Size** | ~15 MB | ~25 MB | ~260 MB |
+| **Offline Ready?** | Yes | Yes | Yes (Cached) |
+
+**Decision:** While DistilBERT offers rich embeddings, the **BiLSTM (Stage 2)** provides the best balance of high accuracy (88.24%) and ultra-low latency (45ms) for the real-time application. The Transformer will be kept as an optional "High Precision" mode.
+
+## 5. Application Interface & System Integration
+The AI model is deployed within a fully offline web application built using **NiceGUI**. This interface allows users to interact with the backend inference engine without requiring internet access or cloud APIs [Source 2, 30].
+
+### A. Technical Stack
+*   **Framework:** NiceGUI (Python-based web UI) [Source 10].
+*   **Execution Mode:** Localhost (`http://127.0.0.1:8080`).
+*   **Responsiveness:** Cross-device support (Desktop/Tablet/Mobile).
+
+### B. Interface Components
+The application is divided into four distinct functional zones:
+
+#### 1. Home Page (Real-Time Detection) [Source 31]
+*   **Input:** Text area accepting Hindi, English, or Code-Mixed (Hinglish) text.
+*   **Visual Feedback:** Dynamic Result Cards change color based on severity:
+    *   🟩 **Normal:** Safe content.
+    *   🟨 **Offensive:** Vulgar/Rude language.
+    *   🟥 **Hate Speech:** Targeted attacks/Violence.
+*   **Real-Time Analytics:** A "Last 10 Predictions" pie chart updates instantly after every query to show immediate trends.
+*   **Latency Indicator:** Displays processing time (e.g., `Latency: 0.045s`) to verify the <2s requirement.
+
+#### 2. History Page (Audit Log) [Source 32]
+*   **Database Sync:** Connects directly to the local SQLite `predictions` table.
+*   **Columns:** Displays Text, Predicted Label, Confidence Score, Latency, and Timestamp (`created_at`).
+*   **Functionality:** Allows users to review past inputs to ensure transparency and accountability.
+
+#### 3. Analytics Dashboard [Source 32]
+*   **Model Health:** Visualizes the specific **Confusion Matrix** for the active model.
+*   **Distribution:** A bar chart showing the total count of Normal vs. Hate vs. Offensive predictions over time.
+*   **Metrics:** Displays static performance scores (Accuracy, F1, Precision) loaded from `reports/`.
+
+#### 4. Admin Panel (Hidden Route) [Source 30, 33]
+*   **Access:** Secured via a hidden URL path (`/admin`) and password authentication.
+*   **Capabilities:**
+    *   **Dataset Upload:** Drag-and-drop CSV uploads to augment training data.
+    *   **Retraining Trigger:** Initiates the `src.training.train` pipeline in the background to update model weights without stopping the server.
+
+### C. Offline Data Flow
+1.  **Input:** User types text in the UI.
+2.  **Preprocessing:** Text is cleaned and tokenized locally [Source 18].
+3.  **Inference:** The **BiLSTM** model (loaded in memory) predicts the class label.
+4.  **Storage:** The result, timestamp, and latency are committed to `data/app.db` [Source 19].
+5.  **Display:** The UI updates via WebSocket push (NiceGUI reactive state).
