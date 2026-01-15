@@ -1,4 +1,4 @@
-from nicegui import ui, app
+from nicegui import ui, app, events
 import numpy as np
 import os
 import time
@@ -7,6 +7,7 @@ import pandas as pd
 import json
 import asyncio
 from tensorflow.keras.models import load_model
+import io
 
 # --- IMPORT PROJECT MODULES ---
 from src.models.bilstm import DeepModel
@@ -145,14 +146,52 @@ async def handle_retrain(log_area):
     log_area.push("✅ Training Complete! Metrics saved to reports/.")
     ui.notify('Model Retrained Successfully!', type='positive')
 
-def handle_upload(e):
+async def handle_upload(e: events.UploadEventArguments):
     try:
-        os.makedirs("data", exist_ok=True)
-        with open(f"data/{e.name}", "wb") as f:
-            f.write(e.content.read())
-        ui.notify(f"Uploaded {e.name}", type='positive')
+        uploaded = e.file
+        filename = uploaded.name
+
+        # Save uploaded file to project root (or temp)
+        temp_path = os.path.join(os.getcwd(), filename)
+        await uploaded.save(temp_path)
+
+        # Read CSV using pandas
+        new_df = pd.read_csv(temp_path)
+
+        # Validation
+        required_cols = {'text', 'label'}
+        if not required_cols.issubset(new_df.columns):
+            ui.notify(
+                f"❌ CSV must contain columns {required_cols}",
+                type='negative'
+            )
+            os.remove(temp_path)
+            return
+
+        # Auto-fill lang column if missing
+        if 'lang' not in new_df.columns:
+            new_df['lang'] = 'en'
+
+        # Append to clean_data.csv
+        clean_path = 'data/clean_data.csv'
+        new_df.to_csv(
+            clean_path,
+            mode='a',
+            header=not os.path.exists(clean_path),
+            index=False
+        )
+
+        # Cleanup temp file
+        os.remove(temp_path)
+
+        ui.notify(
+            f"✅ Successfully added {len(new_df)} rows from {filename}",
+            type='positive'
+        )
+
     except Exception as err:
-        ui.notify(f"Upload failed: {err}", type='negative')
+        ui.notify(f"❌ Upload Failed: {err}", type='negative')
+        print("ADMIN UPLOAD ERROR:", err)
 
 # --- 4. UI PAGES ---
 
@@ -179,7 +218,11 @@ def admin_page():
                 # Upload card
                 with ui.card().classes('p-6 w-96'):
                     ui.label('📂 Upload Dataset').classes('text-xl font-bold mb-4')
-                    ui.upload(on_upload=handle_upload, label="Drop CSV here").classes('w-full')
+                    ui.upload(
+                        label='Upload CSV (text, label)', 
+                        on_upload=handle_upload,  # <--- Connects to the function above
+                        auto_upload=True
+                    ).props('accept=.csv')
 
                 # Retrain card
                 with ui.card().classes('p-6 w-96'):

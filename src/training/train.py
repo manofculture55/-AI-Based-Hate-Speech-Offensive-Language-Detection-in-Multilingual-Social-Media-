@@ -51,17 +51,51 @@ def run_training():
     X_train_txt, y_train, X_val_txt, y_val, X_test_txt, y_test = load_data()
     results = {}
 
-    # --- STAGE 1: BASELINE (SKIPPED) ---
-    print("\n⏩ SKIPPING STAGE 1 (Already Trained)")
-    # for algo in ['lr', 'nb', 'svm']:
-    #     model = BaselineModel(algorithm=algo)
-    #     model.train(X_train_txt, y_train)
-    #     # ... saving code ...
+    # --- STAGE 1: BASELINE (Classical ML) ---
+    print("\n🚀 STAGE 1: BASELINE MODELS")
+    for algo in ['lr', 'nb', 'svm']:
+        print(f"   Training {algo.upper()}...")
+        try:
+            model = BaselineModel(algorithm=algo)
+            model.train(X_train_txt, y_train)
+            
+            # Save Model
+            save_path = os.path.join(BASELINE_DIR, f"{algo}_model.pkl")
+            model.save(save_path)
+            
+            # Evaluate
+            preds = model.predict(X_test_txt)
+            save_metrics(y_test, preds, algo, results)
+        except Exception as e:
+            print(f"   Failed {algo}: {e}")
 
-    # --- STAGE 2: DEEP LEARNING (SKIPPED) ---
-    print("\n⏩ SKIPPING STAGE 2 (Already Trained)")
-    # for arch in ['bilstm', 'cnn']:
-    #     # ... training code ...
+    # --- STAGE 2: DEEP LEARNING (BiLSTM & CNN) ---
+    print("\n🚀 STAGE 2: DEEP LEARNING")
+    
+    # We must fit the tokenizer once so both models use the same vocabulary
+    helper = DeepModel(architecture='bilstm')
+    helper.prepare_tokenizer(X_train_txt) 
+
+    for arch in ['bilstm', 'cnn']:
+        print(f"   Training {arch.upper()}...")
+        try:
+            model = DeepModel(architecture=arch)
+            model.load_tokenizer()
+            
+            # Convert text to sequences (Required for Neural Networks)
+            X_train_seq = model.preprocess(X_train_txt)
+            X_val_seq = model.preprocess(X_val_txt)
+            X_test_seq = model.preprocess(X_test_txt)
+
+            model.train(X_train_seq, y_train, X_val_seq, y_val, epochs=5)
+            model.save()
+            
+            # Evaluate
+            raw_probs = model.model.predict(X_test_seq, verbose=0)
+            preds = raw_probs.argmax(axis=1)
+            save_metrics(y_test, preds, arch, results)
+        except Exception as e:
+            print(f"   Failed {arch}: {e}")
 
     # --- STAGE 3: TRANSFORMER (DistilBERT) ---
     print("\n🚀 STAGE 3: TRANSFORMER (DistilBERT)")
@@ -78,9 +112,9 @@ def run_training():
     save_metrics(y_test, preds, "distilbert", results)
 
     # Final Report
-    with open(os.path.join(REPORT_DIR, "training_report_stage3.json"), "w") as f:
+    with open(os.path.join(REPORT_DIR, "training_report_all.json"), "w") as f:
         json.dump(results, f, indent=4)
-    print(f"\n✨ Stage 3 Complete! Check {REPORT_DIR}/")
+    print(f"\n✨ All Stages Complete! Check {REPORT_DIR}/")
 
 if __name__ == "__main__":
     run_training()

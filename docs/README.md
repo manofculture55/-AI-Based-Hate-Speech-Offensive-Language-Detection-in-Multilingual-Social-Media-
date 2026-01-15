@@ -1,79 +1,52 @@
-# 🛡️ AI-Based Hate Speech Detection (Multilingual)
-
+# AI-Based Hate Speech Detection (Multilingual)
 **KRIXION Internship Project**  
 **Mode:** Offline Execution (No API Calls)  
 **Languages:** Hindi, English, Hinglish  
+**Developer:** [Your Name]
 
-## 📌 Project Overview
-A fully offline web application to detect hate speech and offensive language in social media text. The system uses Machine Learning (Logic Regression, SVM) and Deep Learning (BiLSTM) to classify text into three categories: **Normal**, **Offensive**, or **Hate**.The system uses a multi-stage architecture:
-1.  **Stage 1:** Classical ML (Logistic Regression, Naïve Bayes, SVM).
-2.  **Stage 2:** Deep Learning (BiLSTM, CNN) for context-aware detection.
-3.  **Stage 3:** Transformers (DistilBERT) for high-precision inference (Day 4).
+## 1. Project Overview
+A fully offline web application to detect hate speech and offensive language in social media text. The system uses Machine Learning (Logistic Regression, SVM) and Deep Learning (BiLSTM) to classify text into three categories: **Normal**, **Offensive**, or **Hate** [Source 83].
 
-## 🚀 How to Run (Offline)
+## 2. Key Features
+*   **Multilingual Support:** Handles Hindi (`hi`), English (`en`), and Hinglish (`hi-en`).
+*   **Offline Execution:** Runs entirely on CPU without internet.
+*   **Real-Time Dashboard:** NiceGUI interface with History and Analytics tabs.
+*   **Latency:** < 2 seconds per prediction.
+*   **Hidden Admin Panel:** A secret route for model management and retraining [Source 87].
+
+## 3. How to Run (Offline)
 
 ### Prerequisites
 - Python 3.10 or higher
 - Windows/Mac/Linux
 
-### One-Click Installation
-1. Double-click **`install.bat`**.
-2. This will:
+### One-Click Installation (Windows)
+1. Double-click **`install.bat`** in the project folder.
+2. This will automatically:
    - Create a virtual environment (`venv`).
-   - Install all dependencies (TensorFlow, Scikit-learn, NiceGUI)..
-   - Automatically train ALL models** (Baseline + Deep Learning).
-   - (On Day 5) Launch the App.
+   - Install all dependencies.
+   - Train ALL models (Baseline + Deep Learning).
+   - Launch the App.
 
 ### Manual Execution
 If you prefer running commands manually:
-
 ```bash
 # 1. Activate Virtual Environment
-.\venv\Scripts\activate   # (Windows)
-# source venv/bin/activate  # (Mac/Linux)
+.\venv\Scripts\activate
 
-# 2. Train Models (Retrain all stages)
+# 2. Train Models (Required for first run)
 python -m src.training.train
 
-# 3. Run App (Day 5 Task)
-# python app.py
-
-
-# KRIXION: AI-Based Hate Speech Detection (Offline)
-
-**Internship Project | KRIXION Technologies Pvt. Ltd.**
-**Developer:** [Your Name]
-**Mode:** 100% Offline (No APIs) | **Stack:** Python, NiceGUI, TensorFlow, SQLite
-
-## 📌 Project Overview
-This application is a multilingual AI system designed to detect **Hate Speech** and **Offensive Language** in social media text. It specifically targets **Hindi-English Code-Mixed (Hinglish)** content, which is common in India but hard for traditional models to catch.
-
-The system uses a **BiLSTM (Deep Learning)** architecture to analyze context and saves all predictions to a local SQLite database for auditing.
-
-## 🚀 Key Features
-*   **Multilingual Support:** Handles Hindi (`hi`), English (`en`), and Hinglish (`hi-en`).
-*   **Offline Execution:** Runs entirely on CPU without internet.
-*   **Real-Time Dashboard:** NiceGUI interface with History and Analytics tabs.
-*   **Admin Panel:** Hidden route (`/admin`) for retraining and data management.
-*   **Latency:** < 2 seconds per prediction.
-
-## 🛠️ Installation & Setup
-1.  **Clone/Unzip** the project folder.
-2.  **Run the Installer** (Windows):
-    ```bash
-    install.bat
-    ```
-    *This creates a virtual environment, installs dependencies, and trains the models.*
-
-3.  **Manual Setup** (Linux/Mac/Alternative):
-    ```bash
-    python -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-    python -m src.training.train
-    ```
-
-## 💻 How to Run
-Once installed, launch the application:
-```bash
+# 3. Launch Application
 python app.py
+4. 🔐 Secret Admin Panel Access
+This application includes a hidden administrative console that is not linked from the main navigation bar.
+How to Access:
+1. Open the app in your browser (usually http://localhost:8080).
+2. Manually append /admin to the URL:
+Admin Features:
+• Retrain Models: Click the "RE-TRAIN ALL MODELS" button to trigger the training pipeline in the background [Source 33].
+• System Logs: View real-time logs of the training process and errors.
+• Note: Do not close the application window while retraining is in progress.
+
+---
