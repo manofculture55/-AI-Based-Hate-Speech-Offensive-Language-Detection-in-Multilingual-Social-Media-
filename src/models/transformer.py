@@ -1,6 +1,5 @@
 import os
-# FORCE LEGACY KERAS MODE TO FIX TRANSFORMERS COMPATIBILITY
-# This must be set before importing tensorflow or transformers
+
 os.environ['TF_USE_LEGACY_KERAS'] = '1'
 
 import tensorflow as tf

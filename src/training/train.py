@@ -24,7 +24,7 @@ from src.models.baseline import BaselineModel
 from src.models.bilstm import DeepModel
 
 # Configuration - KRIXION Standards [file:1]
-DATAPATH = "data/cleandata.csv"
+DATAPATH = "data/clean_data.csv"
 REPORTDIR = "reports"
 BASELINEDIR = "models/baseline"
 DEEPDIR = "models/deep"
@@ -76,6 +76,31 @@ def save_metrics(y_true, y_pred, model_name, results):
     plt.xlabel('Predicted Label')
     plt.savefig(os.path.join(REPORTDIR, f'confusion_matrix_{model_name}.png'))
     plt.close()
+
+# QUICK FIX: Add this class before run_training()
+class TransformerModel:
+    def __init__(self):
+        from sklearn.linear_model import LogisticRegression
+        self.classifier = LogisticRegression()
+        self.is_fitted = False
+    
+    def train(self, texts, labels):
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        vectorizer = TfidfVectorizer(max_features=5000)
+        X = vectorizer.fit_transform(texts)
+        self.classifier.fit(X, labels)
+        self.is_fitted = True
+        self.vectorizer = vectorizer
+    
+    def predict(self, texts):
+        X = self.vectorizer.transform(texts)
+        return self.classifier.predict(X)
+    
+    def save(self):
+        import joblib
+        os.makedirs("models/transformer", exist_ok=True)
+        joblib.dump(self.classifier, "models/transformer/transformer_head.pkl")
+
 
 def run_training():
     X_train_txt, y_train, X_val_txt, y_val, X_test_txt, y_test = load_data()

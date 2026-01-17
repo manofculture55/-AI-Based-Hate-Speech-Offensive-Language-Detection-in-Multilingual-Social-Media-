@@ -49,7 +49,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             text TEXT,
             lang TEXT,
-            true_label INTEGER,
+            truelabel INTEGER,
             source TEXT
         )
     ''')

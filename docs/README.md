@@ -13,6 +13,7 @@ A fully offline web application to detect hate speech and offensive language in 
 *   **Real-Time Dashboard:** NiceGUI interface with History and Analytics tabs.
 *   **Latency:** < 2 seconds per prediction.
 *   **Hidden Admin Panel:** A secret route for model management and retraining [Source 87].
+*   **Dynamic UI:** Responsive design with built-in Dark/Light Mode toggle for comfortable viewing in any lighting condition.
 
 ## 3. How to Run (Offline)
 
