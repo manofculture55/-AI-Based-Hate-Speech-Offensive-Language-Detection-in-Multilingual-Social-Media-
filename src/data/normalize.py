@@ -94,22 +94,18 @@ def process_indo_hate():
 # --- MAIN EXECUTION ---
 
 if __name__ == "__main__":
-    print("🚀 Starting Modular Data Normalization...")
-    dfs = []
+    print("🚀 KRIXION Data Normalization...")
     
-    # Add datasets if they exist
+    # Process datasets
+    dfs = []
     d1 = process_hasoc_english()
     if d1 is not None: dfs.append(d1)
-    
     d2 = process_hasoc_hindi("hasoc2019_hi_test_gold_2919.tsv")
     if d2 is not None: dfs.append(d2)
-    
     d3 = process_hasoc_hindi("hindi_dataset.csv")
     if d3 is not None: dfs.append(d3)
-    
     d4 = process_mdpi()
     if d4 is not None: dfs.append(d4)
-    
     d5 = process_indo_hate()
     if d5 is not None: dfs.append(d5)
     
@@ -118,10 +114,19 @@ if __name__ == "__main__":
         final_df.drop_duplicates(subset=['text'], inplace=True)
         final_df = final_df[final_df['text'].str.len() > 2]
         
-        final_df.to_csv(FINAL_CSV, index=False)
-        save_to_db(final_df)
+        # 🔥 CRITICAL: Fix column names to match db.py schema EXACTLY
+        final_df = final_df.rename(columns={'label': 'truelabel'})  # label → truelabel
+        final_df['source'] = 'krixion_datasets'  # Add required source column
         
-        print(f"\n✅ SUCCESS! Processed {len(final_df)} rows.")
-        print(final_df['lang'].value_counts())
+        # Save CSV for training
+        final_df[['text', 'lang', 'truelabel']].to_csv("data/clean_data.csv", index=False)
+        
+        # Save to SQLite annotations table (Section 4)
+        final_df.to_sql('annotations', sqlite3.connect(DB_PATH), if_exists='replace', index=False)
+        print("✅ Data saved to SQLite 'annotations' table.")
+
+        
+        print(f"✅ SAVED {len(final_df)} rows to annotations table")
+        print(final_df[['lang', 'truelabel']].value_counts())
     else:
-        print("❌ No data processed.")
+        print("❌ No datasets found")
