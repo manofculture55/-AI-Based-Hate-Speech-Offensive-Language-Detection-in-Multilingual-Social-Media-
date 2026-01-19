@@ -58,21 +58,5 @@ def init_db():
     conn.close()
     print(f"✅ Database initialized successfully at: {DB_PATH}")
 
-def save_to_db(df, table_name='annotations'):
-    """Save DataFrame to table - PRESERVES db.py schema"""
-    conn = sqlite3.connect(DB_PATH)
-    
-    # Verify required columns exist
-    required = ['text', 'lang', 'truelabel', 'source']
-    for col in required:
-        if col not in df.columns:
-            df[col] = 'unknown'  # Fallback
-    
-    df.to_sql(table_name, conn, if_exists='replace', index=False)
-    conn.close()
-    print(f"✅ Data saved to {table_name} with CORRECT schema")
-
-
 if __name__ == "__main__":
     init_db()
-    

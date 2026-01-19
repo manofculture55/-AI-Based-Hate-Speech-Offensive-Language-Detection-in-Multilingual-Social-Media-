@@ -41,9 +41,9 @@ os.makedirs(DEEPDIR, exist_ok=True)
 def load_data():
     """Load cleaned data with 70/15/15 stratified split [file:1]"""
     print("📊 Loading Data...")
-    df = pd.read_csv(DATAPATH).dropna(subset=['text', 'label'])
+    df = pd.read_csv(DATAPATH).dropna(subset=['text', 'truelabel'])
     texts = df['text'].astype(str).tolist()
-    labels = df['label'].astype(int).tolist()
+    labels = df['truelabel'].astype(int).tolist()
     
     # Stratified split: 70 train, 15 val, 15 test
     X_train, X_temp, y_train, y_temp = train_test_split(
@@ -203,3 +203,12 @@ def run_training():
         print(f"   {model_name.upper()}: {acc:.1%} {status}")
 
     print("\n🎉 ALL STAGES COMPLETE! Run: python app.py")
+
+if __name__ == "__main__":
+    print("🚀 KRIXION TRAINING PIPELINE STARTING...")
+    print(f"📁 Data: {DATAPATH}")
+    if not os.path.exists(DATAPATH):
+        print("❌ ERROR: data/clean_data.csv NOT FOUND!")
+        print("💡 Run: python -m src.data.normalize first")
+        exit(1)
+    run_training()

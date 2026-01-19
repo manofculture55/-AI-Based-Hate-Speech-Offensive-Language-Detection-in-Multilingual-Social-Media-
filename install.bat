@@ -10,7 +10,7 @@ if not exist "venv" (
     echo [INFO] Virtual environment 'venv' found.
 )
 
-REM 2. Activate Environment
+REM 2. Activate Environment  
 echo [INFO] Activating virtual environment...
 call venv\Scripts\activate
 
@@ -19,15 +19,24 @@ echo [INFO] Installing requirements...
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 
-REM 4. Train All Models (Baseline + Deep)
+REM 3.5. Initialize Database (Day 1 - KRIXION Section 7)
+echo [INFO] Initializing SQLite database...
+python -m src.utils.db
+
+REM 4. Normalize Datasets (Day 1)
+echo [INFO] Processing multilingual datasets (HASOC, MDPI, IndoHate)...
+python -m src.data.normalize
+
+REM 5. Train All Models (Day 2-4)
 echo [INFO] Running Unified Training Script...
-echo [INFO] This will train LR, NB, SVM, BiLSTM, and CNN models.
+echo [INFO] This will train LR, NB, SVM, BiLSTM, CNN + Transformer models.
 python -m src.training.train
 
-REM 5. Launch App (To be enabled on Day 5)
-echo [INFO] Note: Main Application (app.py) is scheduled for Day 5.
-:: echo [INFO] Starting Application...
-:: python app.py
-
-echo [INFO] Setup and Training Complete!
+REM 6. Launch App (Day 5 - Ready!)
+echo [INFO] ========================================
+echo [INFO] ✅ KRIXION Setup COMPLETE!
+echo [INFO] ========================================
+echo [INFO] Launch app: python app.py
+echo [INFO] Open: http://localhost:8080
+echo [INFO] ========================================
 pause

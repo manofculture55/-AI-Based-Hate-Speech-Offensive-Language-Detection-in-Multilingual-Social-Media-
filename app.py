@@ -272,16 +272,9 @@ def save_feedback(text, lang, correct_label):
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS annotations (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                text TEXT, lang TEXT, truelabel INTEGER, 
-                source TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
-        cursor.execute("""
-            INSERT INTO annotations (text, lang, truelabel, source)
-            VALUES (?, ?, ?, ?)
-        """, (text, lang, correct_label, 'user_feedback'))
+            INSERT INTO annotations (text, lang, truelabel)
+            VALUES (?, ?, ?)
+        """, (text, lang, correct_label))
         conn.commit()
         conn.close()
         print(f"✅ Feedback saved: {correct_label}")
